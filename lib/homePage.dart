@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quizzy/quizBank.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class Quizzy extends StatefulWidget {
   const Quizzy({super.key});
@@ -13,6 +14,36 @@ class _QuizzyState extends State<Quizzy> {
   Quizbank quizBank = Quizbank();
 
   List<Icon> ScoreKeeper = [];
+
+  void checkAnswer(bool getTheanswer) {
+    bool correctanswer = quizBank.getQuestionanswer();
+    setState(() {
+      if (quizBank.isfinished() == true) {
+        Alert(
+                context: context,
+                title: "quizz finished",
+                desc: "Your are successfully finished the quiz")
+            .show();
+        quizBank.reset();
+        ScoreKeeper=[];
+      } else {
+        if (getTheanswer == correctanswer) {
+          ScoreKeeper.add(Icon(
+            Icons.done,
+            color: Colors.green,
+          ));
+        } else {
+          ScoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+
+        quizBank.nextQuestion();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +58,7 @@ class _QuizzyState extends State<Quizzy> {
               Expanded(
                 child: Center(
                   child: Text(
-                    quizBank.questionBank[questionNumber].qusetionText,
+                    quizBank.getQuestiontext(),
                     style: TextStyle(color: Colors.white, fontSize: 24),
                     textAlign: TextAlign.center,
                   ),
@@ -40,19 +71,7 @@ class _QuizzyState extends State<Quizzy> {
                       backgroundColor: Colors.green,
                     ),
                     onPressed: () {
-                      if (quizBank.questionBank[questionNumber].questionAnswer == true) {
-                        print("The answer is Correct");
-                      } else {
-                        print("The answer is wrong");
-                      }
-
-                      setState(() {
-                        questionNumber++;
-                        ScoreKeeper.add(Icon(
-                          Icons.done,
-                          color: Colors.green,
-                        ));
-                      });
+                      checkAnswer(true);
                     },
                     child: Text(
                       "True",
@@ -64,27 +83,14 @@ class _QuizzyState extends State<Quizzy> {
                 child: TextButton(
                     style: TextButton.styleFrom(backgroundColor: Colors.red),
                     onPressed: () {
-                      if (quizBank.questionBank[questionNumber].questionAnswer ==
-                          false) {
-                        print('The answer is Correct');
-                      } else {
-                        print("The answer is wrong");
-                      }
-
-                      setState(() {
-                        questionNumber++;
-                        ScoreKeeper.add(Icon(
-                          Icons.close,
-                          color: Colors.red,
-                        ));
-                      });
+                      checkAnswer(false);
                     },
                     child: Text(
                       "False",
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     )),
               ),
-              // Row(children: ScoreKeeper)
+              Row(children: ScoreKeeper)
             ],
           ),
         ),
